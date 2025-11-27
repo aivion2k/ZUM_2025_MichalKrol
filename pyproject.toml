@@ -1,0 +1,12 @@
+[project]
+name = "zum-mnist-mk"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.10.7",
+    "pytorch-lightning>=2.5.6",
+    "torchvision>=0.24.1",
+    "transformers>=4.57.3",
+]
