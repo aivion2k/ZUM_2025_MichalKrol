@@ -1,5 +1,6 @@
 import torch
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import EarlyStopping
 from transformers import AutoImageProcessor, AutoModelForImageClassification
 from torchmetrics.classification import MulticlassAccuracy
 
@@ -50,3 +51,11 @@ class ViTLightning(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.AdamW(self.parameters(), lr=self.hparams.lr, weight_decay=self.hparams.wd) # type: ignore
+
+
+early_stop = EarlyStopping(
+    monitor="val_loss",
+    mode="min",
+    patience=1,          # 1–2 na MNIST zwykle wystarczy
+    min_delta=1e-4
+)
