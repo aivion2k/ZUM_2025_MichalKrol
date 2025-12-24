@@ -24,7 +24,6 @@ class MNISTDataModule(LightningDataModule):
                 T.Resize((224, 224)),
                 T.ToImage(),
                 T.ToDtype(torch.float32, scale=True),
-                T.Normalize(mean=[0.5], std=[0.5]),
             ])
         else:
             self.transform = T.Compose([
