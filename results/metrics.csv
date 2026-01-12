@@ -1,0 +1,5 @@
+model,metric,value,notes
+PCA subspace,test_acc,0.9580,k=26
+CNN,test_acc,0.9879,5 epochs
+CNN,test_loss,0.0386,5 epochs
+Transformer (DeiT),test_acc,0.9890,facebook/deit-tiny-patch16-224
