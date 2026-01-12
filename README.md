@@ -2,151 +2,155 @@
 
 ## **1. Informacje ogólne**
 **Nazwa projektu:**  
-*(np. Klasyfikacja wydźwięku w tweetach o wojnie)*  
+Porównanie PCA vs CNN vs Transformer na datasecie MNIST
 
 **Autor:**  
-Imię i nazwisko  
+Michał Król
 
 **Kierunek, rok i tryb studiów:**  
-*(np. Informatyka, semestr V)*  
+Informatyka Data Science, 2 rok, II stopnia internetowe.
 
 **Data oddania projektu:**  
-dd.mm.rrrr  
+15.01.2026
 
 ---
 
 ## **2. Opis projektu**
-Krótki opis projektu – czego dotyczy, jaki problem rozwiązuje, w jakim kontekście może być użyteczny.  
-
-**Przykład:**  
-> Celem projektu jest klasyfikacja emocji w tekstach z mediów społecznościowych. Projekt pozwala na analizę nastrojów użytkowników Twittera dot. wojny z wykorzystaniem metod NLP i uczenia maszynowego.
+Celem projektu jest porównanie trzech podejść do klasyfikacji cyfr odręcznych na zbiorze MNIST:  
+- klasyczny model oparty o PCA (klasyfikator podprzestrzeni),  
+- sieć konwolucyjna (CNN),  
+- transformer w trybie fine-tuningu (DeiT).  
+Porównanie obejmuje wyniki z notebooków oraz prostą analizę wpływu doboru liczby składowych PCA.
 
 ---
 
 ## **3. Dane**
 **Źródło danych:**  
-*(np. HuggingFace, Kaggle, własny zbiór danych)*  
+MNIST (torchvision.datasets.MNIST)
 
 **Link do danych:**  
-`https://...`  
+`http://yann.lecun.com/exdb/mnist/`
 
 **Opis danych:**  
-- liczba próbek:  
-- liczba cech / kolumn:  
-- format danych:  
-- rodzaj etykiet / klas:  
-- licencja:  
+- liczba próbek: 60 000 train + 10 000 test (w projekcie podział train/val: 55 000 / 5 000),  
+- liczba cech / kolumn: 28 x 28 = 784 piksele,  
+- format danych: obrazy w skali szarości, tensor `1 x 28 x 28`, wartości znormalizowane do [0, 1],  
+- rodzaj etykiet / klas: 10 klas (cyfry 0–9),  
+- licencja: zgodnie z informacją na stronie MNIST (Yann LeCun).
 
-
-**Uwaga dotycząca danych:**  
-Nie wrzucaj do repozytorium pełnego zbioru danych!  
-- Jeśli dane są duże, zamieść **jedynie niewielką próbkę** (np. 100–200 rekordów lub kilka obrazów / plików audio) w folderze `data/sample/`, aby pokazać strukturę danych.  
-- Pełen zbiór powinien być pobierany w kodzie (np. z HuggingFace lub Kaggle API) lub dostępny przez link w README.  
-- Dzięki temu repozytorium pozostanie czyste i zgodne z zasadami licencyjnymi.
-
-**Uwagi:**  
-*(np. dane zostały oczyszczone z duplikatów, usunięto brakujące wartości, itp.)*
+**Uwagi dotyczące danych i preprocessingu:**  
+- Dane są pobierane automatycznie przez `torchvision` podczas uruchamiania notebooków.  
+- Dla modelu transformerowego obrazy są skalowane do 224 x 224 i duplikowane do 3 kanałów.
 
 ---
 
 ## **4. Cel projektu**
-Sprecyzuj cel biznesowy lub badawczy projektu:  
-- Co ma robić model?  
-- Jakie pytanie ma odpowiadać lub jaką klasyfikację przeprowadzać?  
-- Jakie decyzje lub wnioski można z projektu wyciągnąć?
+- Klasyfikacja cyfr odręcznych (0–9).  
+- Porównanie skuteczności klasycznego podejścia PCA z CNN i transformerem.  
+- Ocena wpływu doboru liczby komponentów PCA na accuracy.
 
 ---
 
 ## **5. Struktura projektu**
-Projekt składa się z czterech głównych etapów, każdy w osobnym notatniku `.ipynb`:
+Projekt jest podzielony na cztery notebooki:
 
 | Etap | Nazwa pliku | Opis |
 |------|--------------|------|
-| 1 | `1_EDA.ipynb` | Analiza danych, wizualizacje, wnioski |
-| 2 | `2_Preprocessing_Features.ipynb` | Czyszczenie danych, preprocessing, inżynieria cech |
-| 3 | `3_Models_Training.ipynb` | Trening modeli klasycznego ML, sieci neuronowej i transformera |
-| 4 | `4_Evaluation.ipynb` | Ewaluacja, porównanie modeli, wizualizacje wyników |
+| 1 | `01_eda_mnist.ipynb` | EDA, podgląd danych, wizualizacje przykładowych obrazów |
+| 2 | `02_pca_mnist.ipynb` | PCA subspace classifier, analiza accuracy vs k, rekonstrukcje | 
+| 3 | `03_cnn_mnist.ipynb` | Trening i ewaluacja CNN na MNIST |
+| 4 | `04_transformer.ipynb` | Fine-tuning transformera (DeiT) i ewaluacja |
 
 ---
 
 ## **6. Modele**
 Projekt obejmuje trzy różne podejścia do modelowania danych:
 
-### **6.1 Model klasyczny ML**
-- Algorytm:  
-- Krótki opis działania:  
-- Wyniki / metryki:  
+### **6.1 Model klasyczny ML (PCA subspace classifier)**
+- Algorytm: klasyfikator podprzestrzeni PCA liczony osobno dla każdej klasy.  
+- Parametry: `k=26` (sprawdzono zakres k=1..30 w notebooku).  
+- Wyniki / metryki: `test_acc = 0.9580`.
 
-### **6.2 Sieć neuronowa zbudowana od zera**
-- Architektura:  
-- Liczba warstw / neuronów:  
-- Funkcje aktywacji i optymalizator:  
-- Wyniki:  
+### **6.2 Sieć neuronowa (CNN)**
+- Architektura: 2x Conv (1→32, 32→64, kernel 3x3) + MaxPool + 2x FC (128 → 10).  
+- Funkcje aktywacji i optymalizator: ReLU, Adam (`lr=1e-3`).  
+- Trening: 5 epok, batch size 128.  
+- Wyniki: `test_acc = 0.9879`, `test_loss = 0.0386`.
 
 ### **6.3 Model transformerowy (fine-tuning)**
-- Nazwa modelu:  
-- Zastosowana biblioteka (np. HuggingFace Transformers):  
-- Zakres dostosowania:  
-- Wyniki:  
+- Nazwa modelu: `facebook/deit-tiny-patch16-224`.  
+- Biblioteka: HuggingFace Transformers.  
+- Zakres dostosowania: fine-tuning całego modelu, wejście 224x224, 3 kanały, AdamW (`lr=1e-5`, `weight_decay=0.05`), early stopping.  
+- Wyniki: `test_acc = 0.9890`.
 
 ---
 
 ## **7. Ewaluacja**
-**Użyte metryki:**  
-*(np. accuracy, precision, recall, F1, ROC-AUC, MSE itp.)*  
+**Użyte metryki:** accuracy (train/val/test w logach Lightning).  
 
 **Porównanie modeli:**
 
 | Model | Metryka główna | Wynik | Uwagi |
 |--------|----------------|--------|--------|
-| Klasyczny ML |  |  |  |
-| Sieć neuronowa |  |  |  |
-| Transformer |  |  |  |
-
-**Wizualizacje:**  
-- Macierz pomyłek  
-- Krzywa ROC  
-- Learning curve  
+| PCA subspace | Accuracy | 0.9580 | k=26 |
+| CNN | Accuracy | 0.9879 | 5 epok |
+| Transformer (DeiT) | Accuracy | 0.9890 | fine-tuning |
 
 ---
 
 ## **8. Wnioski i podsumowanie**
-- Który model okazał się najlepszy i dlaczego?  
-- Jakie trudności pojawiły się podczas pracy?  
-- Co można by poprawić w przyszłości?  
-- Jakie potencjalne zastosowania ma ten projekt?  
+- Najlepszy wynik uzyskał transformer (0.9890), ale przewaga nad CNN jest niewielka.  
+- CNN zapewnia bardzo wysoki wynik przy niższym koszcie obliczeniowym.  
+- PCA daje wyraźnie słabszy wynik, ale jest szybkim baseline i pozwala analizować wpływ liczby komponentów.  
+- Główne wyzwania: dobór k w PCA oraz większy koszt obliczeń i konieczność resize do 224x224 w transformerze.  
+
+Możliwe usprawnienia: dłuższy trening, augmentacje danych, tuning hiperparametrów, dodatkowe metryki (np. macierz pomyłek).
 
 ---
 
 ## **9. Struktura repozytorium**
 ```
-projekt_zum_2025/
-│
-├── data/
-│ ├── raw/
-│ └── processed/
+.
 ├── notebooks/
-│ ├── 1_EDA.ipynb
-│ ├── 2_Preprocessing_Features.ipynb
-│ ├── 3_Models_Training.ipynb
-│ └── 4_Evaluation.ipynb
-├── models/
-├── results/
-├── README.md
-└── requirements.txt
+│   ├── 01_eda_mnist.ipynb
+│   ├── 02_pca_mnist.ipynb
+│   ├── 03_cnn_mnist.ipynb
+│   └── 04_transformer.ipynb
+├── src/
+│   ├── data/
+│   │   └── datamodule.py
+│   ├── models/
+│   │   └── cnn.py
+│   └── modules/
+│       ├── lit_cnn.py
+│       ├── pca_subspace.py
+│       └── transformer.py
+├── pyproject.toml
+├── uv.lock
+└── README.md
 ```
+
 ## **10. Technologia i biblioteki**
-- Python 3.x  
-- NumPy, Pandas, Matplotlib, Plotly, Seaborn  
-- scikit-learn  
-- TensorFlow lub PyTorch  
-- HuggingFace Transformers  
+- Python 3.12  
+- PyTorch, PyTorch Lightning  
+- torchvision  
+- transformers, torchmetrics  
+- NumPy, Matplotlib  
 
 ---
 
-## **11. Licencja projektu**
-Projekt udostępniony na licencji:  
-*(np. MIT License, CC-BY 4.0, GPL-3.0)*  
+## **11. Uruchomienie (uv)**
+**Instalacja uv:**  
+```
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
 
-Źródło danych: zgodnie z licencją wskazaną w sekcji **Dane**.
+**Instalacja zależności:**  
+```
+uv sync
+```
+---
 
+## **12. Licencja projektu**
+Licencja projektu: MIT.  
+Źródło danych: MNIST (Yann LeCun) – CC BY-SA 3.0.
